@@ -1,0 +1,18 @@
+# Build
+bin/
+obj/
+dist/
+*.user
+*.suo
+.vs/
+
+# Configurazione con credenziali reali
+appsettings.local.json
+
+# Output dell'applicativo
+Report/
+
+# Dati del cliente: listini, prezzi e nominativi non vanno nel repository
+*.xlsx
+*.xlsm
+~$*

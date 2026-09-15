@@ -1,0 +1,123 @@
+<Window x:Class="PrezzoNetto.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Import Prezzo Netto - Factory" Height="720" Width="1400"
+        WindowStartupLocation="CenterScreen"
+        AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver">
+
+    <Window.Resources>
+        <Style x:Key="RowStyle" TargetType="DataGridRow">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsError}" Value="True">
+                    <Setter Property="Background" Value="#FFE4E1" />
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsError}" Value="False" />
+                        <Condition Binding="{Binding HasWarning}" Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#FFF8DC" />
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsError}" Value="False" />
+                        <Condition Binding="{Binding HasWarning}" Value="False" />
+                        <Condition Binding="{Binding IsChange}" Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#E8F5E9" />
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel Margin="12">
+
+        <!-- selezione file -->
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="File" Style="{StaticResource Label}" />
+            <TextBox   Grid.Row="0" Grid.Column="1" x:Name="TxtFile" Margin="0,0,8,0" Padding="4"
+                       VerticalContentAlignment="Center" />
+            <Button    Grid.Row="0" Grid.Column="2" x:Name="BtnBrowse" Content="Sfoglia..." Click="BtnBrowse_Click" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Foglio" Style="{StaticResource Label}" Margin="0,8,6,0" />
+            <TextBox   Grid.Row="1" Grid.Column="1" x:Name="TxtSheet" Margin="0,8,8,0" Padding="4"
+                       VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="260" />
+            <CheckBox  Grid.Row="1" Grid.Column="2" x:Name="ChkDryRun" Content="Simulazione"
+                       VerticalAlignment="Center" Margin="0,8,16,0" />
+            <Button    Grid.Row="1" Grid.Column="3" x:Name="BtnAnalyze" Content="Analizza"
+                       Click="BtnAnalyze_Click" Margin="0,8,8,0" FontWeight="Bold" />
+            <Button    Grid.Row="1" Grid.Column="4" x:Name="BtnApply" Content="Applica"
+                       Click="BtnApply_Click" Margin="0,8,0,0" IsEnabled="False" />
+        </Grid>
+
+        <!-- riepilogo e filtri -->
+        <Border DockPanel.Dock="Top" Background="#F5F5F5" Padding="10,8" Margin="0,0,0,8"
+                BorderBrush="#DDD" BorderThickness="1" CornerRadius="3">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="LblSummary" Style="{StaticResource Counter}"
+                           Text="Nessuna analisi eseguita." />
+                <CheckBox x:Name="ChkOnlyChanges" Content="Solo differenze" Margin="0,0,14,0"
+                          VerticalAlignment="Center" Checked="Filter_Changed" Unchecked="Filter_Changed" />
+                <CheckBox x:Name="ChkOnlyProblems" Content="Solo problemi" Margin="0,0,14,0"
+                          VerticalAlignment="Center" Checked="Filter_Changed" Unchecked="Filter_Changed" />
+                <Button x:Name="BtnExport" Content="Esporta report" Click="BtnExport_Click" IsEnabled="False" />
+            </StackPanel>
+        </Border>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem><TextBlock x:Name="LblStatus" Text="Pronto." /></StatusBarItem>
+        </StatusBar>
+
+        <DataGrid x:Name="Grid" AutoGenerateColumns="False" IsReadOnly="True"
+                  RowStyle="{StaticResource RowStyle}" CanUserSortColumns="True"
+                  GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                  EnableRowVirtualization="True" AlternationCount="0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Riga"          Binding="{Binding ExcelRow}" Width="50" />
+                <DataGridTextColumn Header="Matricola"     Binding="{Binding Matricola}" Width="90" />
+                <DataGridTextColumn Header="Modello"       Binding="{Binding Modello}" Width="120" />
+                <DataGridTextColumn Header="Cliente"       Binding="{Binding Cliente}" Width="130" />
+                <DataGridTextColumn Header="Comm. Excel"   Binding="{Binding CommessaExcel}" Width="80" />
+                <DataGridTextColumn Header="Parte ERP"     Binding="{Binding PACOD}" Width="160" />
+                <DataGridTextColumn Header="Match"         Binding="{Binding MatchLevel}" Width="60" />
+                <DataGridTextColumn Header="Commessa ERP"  Binding="{Binding COCOD}" Width="100" />
+                <DataGridTextColumn Header="Prezzo ERP"    Binding="{Binding PrezzoErp, StringFormat={}{0:N2}}" Width="95">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right" /></Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Prezzo netto"  Binding="{Binding PrezzoNetto, StringFormat={}{0:N2}}" Width="95">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right" /></Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Delta"         Binding="{Binding Delta, StringFormat={}{0:N2}}" Width="90">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right" /></Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Delta %"       Binding="{Binding DeltaPct, StringFormat={}{0:N1}}" Width="65">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right" /></Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Azione"        Binding="{Binding Action}" Width="130" />
+                <DataGridTextColumn Header="Stato"         Binding="{Binding ProcessStatus}" Width="80" />
+                <DataGridTextColumn Header="Messaggio"     Binding="{Binding Message}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </DockPanel>
+</Window>
