@@ -80,6 +80,25 @@
             <StatusBarItem><TextBlock x:Name="LblStatus" Text="Pronto." /></StatusBarItem>
         </StatusBar>
 
+        <!-- Dettaglio della riga selezionata: il messaggio per esteso, che nella
+             griglia resta sempre troncato quando ci sono molte colonne. -->
+        <Border DockPanel.Dock="Bottom" Background="#FAFAFA" BorderBrush="#DDDDDD"
+                BorderThickness="1" CornerRadius="3" Padding="10,8" Margin="0,8,0,0"
+                MinHeight="56">
+            <StackPanel>
+                <TextBlock FontWeight="Bold" Margin="0,0,0,4">
+                    <Run Text="Riga" />
+                    <Run Text="{Binding SelectedItem.ExcelRow, ElementName=Grid, Mode=OneWay}" />
+                    <Run Text=" - " />
+                    <Run Text="{Binding SelectedItem.Matricola, ElementName=Grid, Mode=OneWay}" />
+                    <Run Text=" - " />
+                    <Run Text="{Binding SelectedItem.PACOD, ElementName=Grid, Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock Text="{Binding SelectedItem.Message, ElementName=Grid, Mode=OneWay}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
         <DataGrid x:Name="Grid" AutoGenerateColumns="False" IsReadOnly="True"
                   RowStyle="{StaticResource RowStyle}" CanUserSortColumns="True"
                   GridLinesVisibility="Horizontal" HeadersVisibility="Column"
@@ -115,7 +134,14 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Azione"        Binding="{Binding Action}" Width="130" />
                 <DataGridTextColumn Header="Stato"         Binding="{Binding ProcessStatus}" Width="80" />
-                <DataGridTextColumn Header="Messaggio"     Binding="{Binding Message}" Width="*" />
+                <DataGridTextColumn Header="Messaggio"     Binding="{Binding Message}" Width="*" MinWidth="320">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                            <Setter Property="ToolTip" Value="{Binding Message}" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
 
